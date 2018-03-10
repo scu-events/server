@@ -8,6 +8,7 @@ import (
 
 func handler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "[]")
+    fmt.Fprintf(w, "Hi Qt ;)")
 }
 
 func main() {
