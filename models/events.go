@@ -1,48 +1,61 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/json"
+)
 
 //Global struct to hold variables/datatype of information we will grab
 type Event struct {
-	Summary     string
-	Description string
-	Location    string
-	Starttime   string
-	Endtime     string
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
+	Location    string `json:"location"`
+	Starttime   string `json:"starttime"`
+	Endtime     string `json:"endtime"`
 }
 
-//Function to query data
-func AllEvents(db *sql.DB) ([]*Event, error) {
-
-	/*I assume we are going to pass slices here
-	based off of the input from the user on the front end
-	to retreive specific data to display, for now just going
-	to grab everything*/
-	rows, err := db.Query("SELECT * FROM events")
+func OutputJSON(db *sql.DB) (string, error) {
+	rows, err := db.Query("SELECT * FROM events;")
 	if err != nil {
-		return nil, err
+		return string("Error 1"), nil
 	}
 
 	//Need to close because reasons
 	defer rows.Close()
 
-	events := make([]*Event, 0)
-
-	//Search through rows for data
-	for rows.Next() {
-		event := new(Event)
-
-		//Scan rows to grab information from columns
-		err := rows.Scan(&event.Summary, &event.Description, &event.Location, &event.Starttime, &event.Endtime)
-		if err != nil {
-			return nil, err
-		}
-
-		//append information we just grabbed to a slice, then go to the next row
-		events = append(events, event)
-	}
+	//grabs list of column names
+	columns, err := rows.Columns()
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return string("Error 2"), nil
 	}
-	return events, nil
+
+	//count amount of columns
+	count := len(columns)
+
+	//This should preserve data types
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	valuePtrs := make([]interface{}, count)
+
+	for rows.Next() {
+		for i := 0; i < count; i++ {
+			valuePtrs[i] = &values[i]
+		}
+		rows.Scan(valuePtrs...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
+	}
+	jsonData, err := json.Marshal(tableData)
+	return string(jsonData), nil
 }
