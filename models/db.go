@@ -7,7 +7,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//Function to communicate with db
+//NewDB : Function to communicate with db
 func NewDB(dataSourceName string) (*sql.DB, error) {
 
 	//Validates arguments but doesn't create connection

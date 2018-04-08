@@ -40,7 +40,7 @@ func (env *Env) gethandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := models.OutputJSON(env.db)
+	events, err := models.OutputJSON(env.db, r)
 
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
