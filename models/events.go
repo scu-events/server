@@ -19,10 +19,13 @@ type Event struct {
 //OutputJSON : for HTTP Get request
 func OutputJSON(db *sql.DB, r *http.Request) (string, error) {
 	params, err := URLParse(r)
-	rows, err := db.Query("SELECT * FROM events WHERE month = '$1', month = '$2', month = '$3, year = '$4';", params[0],  params[1],  params[2],  params[3])
-
+	//Check to see if we got array params
 	if err != nil {
-		return string("Error 1"), nil
+		return string("URL Parse error"), nil
+	}
+	rows, err := db.Query("SELECT * FROM events WHERE month = $1 OR month= $2 OR month = $3 AND year = $4;", params[0],  params[1], params[2], params[3])
+	if err != nil {
+		return string("DB Query error"), nil
 	}
 
 	//Need to close because reasons
@@ -31,7 +34,7 @@ func OutputJSON(db *sql.DB, r *http.Request) (string, error) {
 	//grabs list of column names
 	columns, err := rows.Columns()
 	if err = rows.Err(); err != nil {
-		return string("Error 2"), nil
+		return string("Error Traversing Columns"), nil
 	}
 
 	//count amount of columns
