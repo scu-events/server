@@ -1,4 +1,4 @@
-package main
+package calendar
 
 import (
 	"context"
@@ -67,7 +67,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-func main() {
+func GetData(r *http.Request) (string, error) {
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -90,6 +90,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
 	}
+
+	//Encoding data as json
+	tableData := make([]map[string]interface{}, 0)
 	fmt.Println("Upcoming events:")
 	if len(events.Items) == 0 {
 		fmt.Println("No upcoming events found.")
@@ -99,7 +102,10 @@ func main() {
 			if date == "" {
 				date = item.Start.Date
 			}
-			fmt.Printf("%v (%v)\n", item.Summary, date) //We can encode to json here, depends on formatting we want
+			tableData = append(tableData, nil)
+			//fmt.Printf("%v (%v)\n", item.Summary, date) //We can encode to json here, depends on formatting we want
 		}
 	}
+	jsonData, err := json.Marshal(tableData)
+	return string(jsonData), nil
 }
