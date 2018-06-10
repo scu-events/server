@@ -67,7 +67,15 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-func GetData(r *http.Request) (string, error) {
+type eventData struct {
+	Summary  string `json:"summary"`
+	Date     string `json:"date"`
+	Location string `json:"location"`
+	HTMLLink string `json:"HtmlLink"`
+}
+
+//GetData function called in main
+func GetData(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -85,27 +93,24 @@ func GetData(r *http.Request) (string, error) {
 	}
 
 	t := time.Now().Format(time.RFC3339)
-	events, err := srv.Events.List("primary").ShowDeleted(false). //change from primary to our calendar
-									SingleEvents(true).TimeMin(t).MaxResults(20).OrderBy("startTime").Do()
+	events, err := srv.Events.List("primary").ShowDeleted(false).
+		SingleEvents(true).TimeMin(t).MaxResults(5).OrderBy("startTime").Do() //change from primary
 	if err != nil {
-		log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
+		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
 	}
 
-	//Encoding data as json
-	tableData := make([]map[string]interface{}, 0)
-	fmt.Println("Upcoming events:")
-	if len(events.Items) == 0 {
-		fmt.Println("No upcoming events found.")
-	} else {
-		for _, item := range events.Items {
-			date := item.Start.DateTime
-			if date == "" {
-				date = item.Start.Date
-			}
-			tableData = append(tableData, nil)
-			//fmt.Printf("%v (%v)\n", item.Summary, date) //We can encode to json here, depends on formatting we want
+	for _, item := range events.Items {
+		event := eventData{
+			Summary:  string(item.Summary),
+			Date:     string(item.Start.DateTime),
+			HTMLLink: string(item.HtmlLink),
+			Location: string(item.Location),
 		}
+		eventJSON, err := json.Marshal(event)
+		if err != nil {
+			fmt.Fprintf(w, "Error: %s", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(eventJSON)
 	}
-	jsonData, err := json.Marshal(tableData)
-	return string(jsonData), nil
 }
