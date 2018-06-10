@@ -2,15 +2,14 @@ package main
 
 //import packages, globals,
 import (
-	"fmt"
 	"net/http"
 	"server/calendar"
 )
 
 func main() {
 
-	http.HandleFunc("/events", gethandler)
-	http.ListenAndServe(":3000", nil)
+	http.HandleFunc("/events", gethandler) //may need to replace /events with whatever url we are passing
+	http.ListenAndServe(":3000", nil)      //i think google calendar api might like it a certain way to parse
 }
 
 //HTTP GET Handler
@@ -20,13 +19,6 @@ func gethandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := calendar.GetData(r)
+	calendar.GetData(w, r)
 
-	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	//Print out results
-	fmt.Println(events)
 }
