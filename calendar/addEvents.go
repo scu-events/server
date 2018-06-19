@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-func insertEvent(title string, location string, description string, sT string, eT string, food bool, depart string) {
+func insertEvent(title string, location string, description string, sT string, eT string, food string, depart string) {
 	b, err := ioutil.ReadFile("client_secret.json")
 	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
 	srv, err := calendar.New(getClient(config))
@@ -24,6 +24,9 @@ func insertEvent(title string, location string, description string, sT string, e
 		End: &calendar.EventDateTime{
 			DateTime: eT,
 			TimeZone: "America/Los Angeles",
+		},
+		ExtendedProperties: &calendar.EventExtendedProperties{
+			Private: make(map[string]string),
 		},
 	}
 	calendarID := "primary" //this adds event to the calendar of the logged in user, we can change to url
