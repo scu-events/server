@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-func insertEvent(title string, location string, description string, sT string, eT string, food string, depart string) {
+func insertEvent(title string, location string, description string, sT string, eT string, food string, dpt string) {
 	b, err := ioutil.ReadFile("client_secret.json")
 	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
 	srv, err := calendar.New(getClient(config))
@@ -26,9 +26,11 @@ func insertEvent(title string, location string, description string, sT string, e
 			TimeZone: "America/Los Angeles",
 		},
 		ExtendedProperties: &calendar.EventExtendedProperties{
-			Private: make(map[string]string),
+			Private: map[string]string{},
 		},
 	}
+	event.ExtendedProperties.Private["freeFood"] = food
+	event.ExtendedProperties.Private["department"] = dpt
 	calendarID := "primary" //this adds event to the calendar of the logged in user, we can change to url
 	event, err = srv.Events.Insert(calendarID, event).Do()
 	if err != nil {
@@ -36,25 +38,3 @@ func insertEvent(title string, location string, description string, sT string, e
 	}
 	fmt.Printf("Event created: %s\n", event.HtmlLink)
 }
-
-/*//Seperate function to add extended properties with patching, rather than insert (will handle Nulls better)
-func ExtendedProperties(food bool, depart string) {
-	b, err := ioutil.ReadFile("client_secret.json")
-	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
-	srv, err := calendar.New(getClient(config))
-	event := &calendar.Event{
-		"extendedProperties": {
-			"private": {
-				freeFood:   food,
-				department: depart,
-			},
-		},
-	}
-	calendarId := "primary" //this adds to calendar of the logged in user
-	event, err = srv.Events.Patch(calendarId, event).Do()
-	if err != nil {
-		log.Fatalf("Error with properties. %v\n", err)
-	}
-	fmt.Printf("Extended Properties added to: %s\n", event.HtmlLink)
-}
-*/
