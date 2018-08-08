@@ -74,6 +74,8 @@ type eventData struct {
 	HTMLLink string `json:"HtmlLink"`
 }
 
+type eventsData []eventData
+
 //GetData function called in main
 func GetData(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadFile("client_secret.json")
@@ -99,18 +101,22 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
 	}
 
+	var acc eventsData
+
 	for _, item := range events.Items {
-		event := eventData{
+		acc = append(acc, eventData{
 			Summary:  string(item.Summary),
 			Date:     string(item.Start.DateTime),
 			HTMLLink: string(item.HtmlLink),
 			Location: string(item.Location),
-		}
-		eventJSON, err := json.Marshal(event)
-		if err != nil {
-			fmt.Fprintf(w, "Error: %s", err)
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(eventJSON)
+		})
 	}
+
+	eventsJSON, err := json.Marshal(acc)
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(eventsJSON)
 }
