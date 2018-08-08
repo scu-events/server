@@ -2,8 +2,8 @@ package main
 
 //import packages, globals,
 import (
+	"./calendar"
 	"net/http"
-	"server/calendar"
 )
 
 func main() {
