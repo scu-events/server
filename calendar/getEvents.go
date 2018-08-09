@@ -68,13 +68,19 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 type eventData struct {
-	Summary  string `json:"summary"`
-	Date     string `json:"date"`
-	Location string `json:"location"`
-	HTMLLink string `json:"HtmlLink"`
+	StartDateTime string `json:"start_date_time"`
+	EndDateTime   string `json:"end_date_time"`
+	Location      string `json:"location"`
+	HTMLLink      string `json:"html_link"`
+	Summary       string `json:"summary"`
+	Title         string `json:"title"`
 }
 
 type eventsData []eventData
+
+type returnedDate struct {
+	Data interface{} `json:"data"`
+}
 
 //GetData function called in main
 func GetData(w http.ResponseWriter, r *http.Request) {
@@ -104,19 +110,23 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	var acc eventsData
 
 	for _, item := range events.Items {
+		fmt.Printf("%+v\n", item)
 		acc = append(acc, eventData{
-			Summary:  string(item.Summary),
-			Date:     string(item.Start.DateTime),
-			HTMLLink: string(item.HtmlLink),
-			Location: string(item.Location),
+			StartDateTime: string(item.Start.DateTime),
+			EndDateTime:   string(item.End.DateTime),
+			Summary:       string(item.Summary),
+			Title:         string(item.Summary),
+			HTMLLink:      string(item.HtmlLink),
+			Location:      string(item.Location),
 		})
 	}
 
-	eventsJSON, err := json.Marshal(acc)
+	res := returnedDate{Data: acc}
+
+	eventsJSON, err := json.Marshal(res)
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(eventsJSON)
 }
