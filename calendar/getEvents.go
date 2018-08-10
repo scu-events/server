@@ -68,10 +68,18 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 type eventData struct {
-	Summary  string `json:"summary"`
-	Date     string `json:"date"`
-	Location string `json:"location"`
-	HTMLLink string `json:"HtmlLink"`
+	StartDateTime string `json:"start_date_time"`
+	EndDateTime   string `json:"end_date_time"`
+	Location      string `json:"location"`
+	HTMLLink      string `json:"html_link"`
+	Summary       string `json:"summary"`
+	Title         string `json:"title"`
+}
+
+type eventsData []eventData
+
+type returnedDate struct {
+	Data interface{} `json:"data"`
 }
 
 //GetData function called in main
@@ -99,18 +107,26 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
 	}
 
+	var acc eventsData
+
 	for _, item := range events.Items {
-		event := eventData{
-			Summary:  string(item.Summary),
-			Date:     string(item.Start.DateTime),
-			HTMLLink: string(item.HtmlLink),
-			Location: string(item.Location),
-		}
-		eventJSON, err := json.Marshal(event)
-		if err != nil {
-			fmt.Fprintf(w, "Error: %s", err)
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(eventJSON)
+		fmt.Printf("%+v\n", item)
+		acc = append(acc, eventData{
+			StartDateTime: string(item.Start.DateTime),
+			EndDateTime:   string(item.End.DateTime),
+			Summary:       string(item.Summary),
+			Title:         string(item.Summary),
+			HTMLLink:      string(item.HtmlLink),
+			Location:      string(item.Location),
+		})
 	}
+
+	res := returnedDate{Data: acc}
+
+	eventsJSON, err := json.Marshal(res)
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err)
+	}
+
+	w.Write(eventsJSON)
 }
