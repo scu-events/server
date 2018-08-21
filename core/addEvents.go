@@ -1,18 +1,13 @@
-package calendar
+package core
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
-
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
+	"log"
 )
 
 func insertEvent(title string, location string, description string, sT string, eT string, food string, dpt string) {
-	b, err := ioutil.ReadFile("client_secret.json")
-	config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
-	srv, err := calendar.New(getClient(config))
+	calendar_service := GetCalendarService()
 	event := &calendar.Event{
 		Summary:     title,
 		Location:    location,
@@ -32,7 +27,7 @@ func insertEvent(title string, location string, description string, sT string, e
 	event.ExtendedProperties.Private["freeFood"] = food
 	event.ExtendedProperties.Private["department"] = dpt
 	calendarID := "primary" //this adds event to the calendar of the logged in user, we can change to url
-	event, err = srv.Events.Insert(calendarID, event).Do()
+	event, err := calendar_service.Events.Insert(calendarID, event).Do()
 	if err != nil {
 		log.Fatalf("Unable to create event. %v\n", err)
 	}
