@@ -23,22 +23,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
 	}
 
-	var events Events
-
-	for _, item := range from_calendar.Items {
-		fmt.Printf("%+v\n", item)
-		events = append(events, Event{
-			StartDateTime: string(item.Start.DateTime),
-			EndDateTime:   string(item.End.DateTime),
-			Summary:       string(item.Summary),
-			Title:         string(item.Summary),
-			HTMLLink:      string(item.HtmlLink),
-			Location:      string(item.Location),
-			Tags:          []string{},
-		})
-	}
-
-	data, err := json.Marshal(ReturningData{Data: events})
+	data, err := json.Marshal(ReturningData{Data: from_calendar.Items})
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}
