@@ -1,18 +1,16 @@
-package calendar
+package core
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/calendar/v3"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"time"
-
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/calendar/v3"
 )
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -67,23 +65,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-type eventData struct {
-	StartDateTime string `json:"start_date_time"`
-	EndDateTime   string `json:"end_date_time"`
-	Location      string `json:"location"`
-	HTMLLink      string `json:"html_link"`
-	Summary       string `json:"summary"`
-	Title         string `json:"title"`
-}
-
-type eventsData []eventData
-
-type returnedDate struct {
-	Data interface{} `json:"data"`
-}
-
-//GetData function called in main
-func GetData(w http.ResponseWriter, r *http.Request) {
+func GetCalendarService() *calendar.Service {
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -95,38 +77,10 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 
-	srv, err := calendar.New(getClient(config))
+	calendar_service, err := calendar.New(getClient(config))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
 	}
 
-	t := time.Now().Format(time.RFC3339)
-	events, err := srv.Events.List("primary").ShowDeleted(false).
-		SingleEvents(true).TimeMin(t).MaxResults(5).OrderBy("startTime").Do() //change from primary
-	if err != nil {
-		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
-	}
-
-	var acc eventsData
-
-	for _, item := range events.Items {
-		fmt.Printf("%+v\n", item)
-		acc = append(acc, eventData{
-			StartDateTime: string(item.Start.DateTime),
-			EndDateTime:   string(item.End.DateTime),
-			Summary:       string(item.Summary),
-			Title:         string(item.Summary),
-			HTMLLink:      string(item.HtmlLink),
-			Location:      string(item.Location),
-		})
-	}
-
-	res := returnedDate{Data: acc}
-
-	eventsJSON, err := json.Marshal(res)
-	if err != nil {
-		fmt.Fprintf(w, "Error: %s", err)
-	}
-
-	w.Write(eventsJSON)
+	return calendar_service
 }

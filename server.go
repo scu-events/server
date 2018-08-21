@@ -1,23 +1,13 @@
 package main
 
 import (
-	"./calendar"
+	"./core"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/api/events", withCommonConfig(gethandler))
+	http.HandleFunc("/api/events", withCommonConfig(core.GetData))
 	http.ListenAndServe(":4000", nil)
-}
-
-//HTTP GET Handler
-func gethandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, http.StatusText(405), 405)
-		return
-	}
-
-	calendar.GetData(w, r)
 }
 
 func withCommonConfig(next http.HandlerFunc) http.HandlerFunc {
