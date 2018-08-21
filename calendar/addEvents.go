@@ -11,7 +11,7 @@ import (
 
 func insertEvent(title string, location string, description string, sT string, eT string, food string, dpt string) {
 	b, err := ioutil.ReadFile("client_secret.json")
-	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
+	config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
 	srv, err := calendar.New(getClient(config))
 	event := &calendar.Event{
 		Summary:     title,
