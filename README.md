@@ -1,5 +1,5 @@
 # Server
-Server side to scu-events
+Back-end code for scu-events
 
 # Dependencies
 
