@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-func CrawlGoogleCal(url string, calendarId string) ([]calendar.Event, error) {
+func CrawlGoogleCal(url string) ([]calendar.Event, error) {
 	var res []calendar.Event
 
 	resp, err := http.Get(url)
