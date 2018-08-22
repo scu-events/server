@@ -31,13 +31,33 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	month := r.URL.Query()["month"][0]
-	y := r.URL.Query()["year"][0]
-	year, err := strconv.Atoi(y)
+	m, ok := r.URL.Query()["month"]
+	var month time.Month
+	if !(ok && len(m) >= 0) {
+		month = time.Now().Month()
+	} else {
+		month = months[m[0]]
+	}
+
+	y, ok := r.URL.Query()["year"]
+	var year int
+	if !(ok && len(y) >= 0) {
+		year = time.Now().Year()
+	} else {
+		ye, err := strconv.Atoi(y[0])
+		year = ye
+		if err != nil {
+			year = time.Now().Year()
+		}
+	}
+
 	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		loc = time.UTC
+	}
 
 	calendar_service := GetCalendarService()
-	t := time.Date(year, months[month], 0, 0, 0, 0, 0, loc).Format(time.RFC3339)
+	t := time.Date(year, month, 0, 0, 0, 0, 0, loc).Format(time.RFC3339)
 	from_calendar, err := calendar_service.Events.List("primary").ShowDeleted(false).
 		SingleEvents(true).TimeMin(t).MaxResults(5).OrderBy("startTime").Do() //change from primary
 	if err != nil {
