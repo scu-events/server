@@ -17,3 +17,7 @@ go get golang.org/x/oauth2
 # Run
 
 `go run server.go`
+
+# Deploy
+`GOOS="linux" GOARCH="amd64" go build server.go`
+Then deploy the binary executable to a linux based machine
