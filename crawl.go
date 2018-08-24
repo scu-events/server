@@ -2,8 +2,9 @@ package main
 
 import (
 	"./core"
-	"fmt"
+	"google.golang.org/api/calendar/v3"
 	"os"
+	"sync"
 )
 
 func main() {
@@ -16,8 +17,28 @@ func main() {
 	//Official CSO/RSO Calendar
 	google_cals["cso"] = "https://clients6.google.com/calendar/v3/calendars/csl@scu.edu/events?calendarId=csl@scu.edu&singleEvents=true&timeZone=America/Los_Angeles&maxAttendees=1&maxResults=250&sanitizeHtml=true&timeMin=2018-02-26T00:00:00-08:00&timeMax=2018-04-02T00:00:00-08:00&key=AIzaSyBNlYH01_9Hc5S1J9vuFmu2nUqBZJNAXxs"
 
+	var wg sync.WaitGroup
+	wg.Add(len(args) - 1)
+	events_ch := make(chan []calendar.Event)
+
 	for _, arg := range args {
-		events, _ := core.CrawlGoogleCal(google_cals[arg])
-		core.AddEvents(events)
+		go func(url string) {
+			defer wg.Done()
+
+			events, err := core.CrawlGoogleCal(url)
+			if err == nil {
+				wg.Add(len(args))
+				events_ch <- events
+			}
+		}(google_cals[arg])
 	}
+
+	go func() {
+		for events := range events_ch {
+			defer wg.Done()
+			core.AddEvents(events)
+		}
+	}()
+
+	wg.Wait()
 }
