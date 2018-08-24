@@ -14,9 +14,11 @@ Following works
 	core.AddEvents(to_insert)
 */
 func AddEvents(events []calendar.Event) {
-	calendar_service := GetCalendarService()
+	fmt.Printf("%d events\n", len(events))
 
+	calendar_service := GetCalendarService()
 	calendarID := "primary"
+
 	for _, event := range events {
 		// need to deal with ExtendedProperties
 		// item := &calendar.Event{
@@ -35,12 +37,9 @@ func AddEvents(events []calendar.Event) {
 		// // Private: map[string]string{},
 		// // },
 		// }
-		res, err := calendar_service.Events.Insert(calendarID, &event).Do()
+		_, err := calendar_service.Events.Insert(calendarID, &event).Do()
 		if err != nil {
 			log.Fatalf("Unable to create event. %v\n", err)
 		}
-		fmt.Printf("Event inserted: %s\n", res.HtmlLink)
 	}
-
-	fmt.Printf("Events inserted")
 }

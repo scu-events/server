@@ -42,7 +42,6 @@ func CrawlGoogleCal(url string) ([]calendar.Event, error) {
 }
 
 func CrawlOfficialCal(url string) {
-
 	fp := gofeed.NewParser()
 	feed, _ := fp.ParseURL(url)
 	fmt.Println(feed.Title)
