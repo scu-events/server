@@ -6,7 +6,10 @@ Back-end code for scu-events
 ```
 go get google.golang.org/api/calendar/v3
 go get golang.org/x/oauth2
+go get github.com/mmcdole/gofeed
+go get cloud.google.com/go
 ```
+
 # Google Calendar API keys
 
 1. Create OAuth Client ID (Application type: Other)
