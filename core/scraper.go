@@ -12,6 +12,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
+// write comments
 func CrawlGoogleCal(url string) ([]calendar.Event, error) {
 	var res []calendar.Event
 
@@ -41,6 +42,7 @@ func CrawlGoogleCal(url string) ([]calendar.Event, error) {
 	return res, nil
 }
 
+// write comments
 func CrawlOfficialCal(url string) {
 	fp := gofeed.NewParser()
 	feed, _ := fp.ParseURL(url)

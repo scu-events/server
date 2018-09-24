@@ -16,7 +16,7 @@ Following works
 func AddEvents(events []calendar.Event) {
 	fmt.Printf("%d events\n", len(events))
 
-	calendar_service := GetCalendarService()
+	calendarService := GetCalendarService()
 	calendarID := "primary"
 
 	for _, event := range events {
@@ -37,7 +37,7 @@ func AddEvents(events []calendar.Event) {
 		// // Private: map[string]string{},
 		// // },
 		// }
-		_, err := calendar_service.Events.Insert(calendarID, &event).Do()
+		_, err := calendarService.Events.Insert(calendarID, &event).Do()
 		if err != nil {
 			log.Fatalf("Unable to create event. %v\n", err)
 		}
