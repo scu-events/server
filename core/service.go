@@ -65,6 +65,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
+//TODO: write comment
 func GetCalendarService() *calendar.Service {
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
@@ -77,10 +78,10 @@ func GetCalendarService() *calendar.Service {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 
-	calendar_service, err := calendar.New(getClient(config))
+	calendarService, err := calendar.New(getClient(config))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
 	}
 
-	return calendar_service
+	return calendarService
 }

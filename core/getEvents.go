@@ -56,15 +56,15 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		loc = time.UTC
 	}
 
-	calendar_service := GetCalendarService()
+	calendarService := GetCalendarService()
 	t := time.Date(year, month, 0, 0, 0, 0, 0, loc)
-	from_calendar, err := calendar_service.Events.List("primary").ShowDeleted(false).
+	fromCalendar, err := calendarService.Events.List("primary").ShowDeleted(false).
 		SingleEvents(true).TimeMin(t.Format(time.RFC3339)).TimeMax(t.AddDate(0, 1, 0).Format(time.RFC3339)).OrderBy("startTime").Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve next five of the user's events: %v", err)
 	}
 
-	data, err := json.Marshal(ReturningData{Data: from_calendar.Items})
+	data, err := json.Marshal(ReturningData{Data: fromCalendar.Items})
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}
