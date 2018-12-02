@@ -2,8 +2,10 @@ package core
 
 import (
 	"fmt"
+	"crypto/md5"
 	"google.golang.org/api/calendar/v3"
 	"log"
+	"encoding/hex"
 )
 
 /*
@@ -17,29 +19,23 @@ func AddEvents(events []calendar.Event) {
 	fmt.Printf("%d events\n", len(events))
 
 	calendarService := GetCalendarService()
-	calendarID := "primary"
+	calendarID := "scuhackers@gmail.com"
 
-	for _, event := range events {
-		// need to deal with ExtendedProperties
-		// item := &calendar.Event{
-		// Summary:     event.Title,
-		// Location:    event.Location,
-		// Description: event.Summary,
-		// Start: &calendar.EventDateTime{
-		// DateTime: sT,
-		// TimeZone: "America/Los Angeles",
-		// },
-		// End: &calendar.EventDateTime{
-		// DateTime: eT,
-		// TimeZone: "America/Los Angeles",
-		// },
-		// // ExtendedProperties: &calendar.EventExtendedProperties{
-		// // Private: map[string]string{},
-		// // },
-		// }
-		_, err := calendarService.Events.Insert(calendarID, &event).Do()
-		if err != nil {
-			log.Fatalf("Unable to create event. %v\n", err)
+	for _, event := range events {		
+		if(event.Start != nil && event.End != nil) {
+			fmt.Printf(".")
+
+			// Hash the title and start as the event id. This allows duplicate events to be rejected by the google cal API.
+			hashInput := []byte(event.Summary + event.Start.DateTime)
+			var hash = md5.Sum(hashInput)
+			var hashString = hex.EncodeToString(hash[:])
+			fmt.Printf(hashString)
+			event.Id = hashString
+
+			_, err := calendarService.Events.Insert(calendarID, &event).Do()
+			if err != nil {
+				log.Printf("Unable to create event. %v\n", err)
+			}
 		}
 	}
 }
