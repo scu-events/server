@@ -19,13 +19,14 @@ func AddEvents(events []calendar.Event) {
 	fmt.Printf("%d events\n", len(events))
 
 	calendarService := GetCalendarService()
-	calendarID := "scuhackers@gmail.com"
+	calendarID := "bo5c3s40s9cnjt2keo490744cg@group.calendar.google.com"
 
 	for _, event := range events {		
 		if(event.Start != nil && event.End != nil) {
 			fmt.Printf(".")
 
-			// Hash the title and start as the event id. This allows duplicate events to be rejected by the google cal API.
+			// Hash the title and start time to generate the event id
+			// This allows duplicate events to be rejected by the google calender API
 			hashInput := []byte(event.Summary + event.Start.DateTime)
 			var hash = md5.Sum(hashInput)
 			var hashString = hex.EncodeToString(hash[:])
