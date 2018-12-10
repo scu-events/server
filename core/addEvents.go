@@ -6,6 +6,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 	"log"
 	"encoding/hex"
+	"time"
 )
 
 /*
@@ -37,6 +38,10 @@ func AddEvents(events []calendar.Event) {
 			if err != nil {
 				log.Printf("Unable to create event. %v\n", err)
 			}
+
+			// Wait for 1 second after creating the event to not hit the API's limit
+			// of 2,000 queries / 100 seconds 
+			time.Sleep(time.Second)
 		}
 	}
 }
